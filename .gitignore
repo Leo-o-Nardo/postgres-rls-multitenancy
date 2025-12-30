@@ -1,0 +1,10 @@
+.env
+.idea
+.vscode
+pgdata/
+vendor/
+node_modules/
+backend/vendor/
+backend/node_modules/
+backend/.env
+docker/nginx/logs/
