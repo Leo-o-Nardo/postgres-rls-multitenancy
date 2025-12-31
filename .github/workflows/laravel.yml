@@ -15,7 +15,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_DB: saas_test
-          POSTGRES_USER: app_user
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: app_password
         ports:
           - 5432:5432
@@ -50,6 +50,14 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
       working-directory: ./backend
+    
+    - name: Setup Application User (Non-Superuser)
+      env:
+        PGPASSWORD: password
+      run: |
+        psql -h 127.0.0.1 -U postgres -d saas_test -c "CREATE USER app_user WITH PASSWORD 'app_password';"        
+        psql -h 127.0.0.1 -U postgres -d saas_test -c "ALTER DATABASE saas_test OWNER TO app_user;"        
+        psql -h 127.0.0.1 -U postgres -d saas_test -c "ALTER SCHEMA public OWNER TO app_user;"
 
     - name: Run Migrations 
       working-directory: ./backend
