@@ -51,6 +51,17 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
       working-directory: ./backend
 
+    - name: Run Migrations 
+      working-directory: ./backend
+      env:
+        DB_CONNECTION: pgsql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 5432
+        DB_DATABASE: saas_test
+        DB_USERNAME: app_user
+        DB_PASSWORD: app_password
+      run: php artisan migrate --force
+
     - name: Run Tests (Security Proof)
       working-directory: ./backend
       env:

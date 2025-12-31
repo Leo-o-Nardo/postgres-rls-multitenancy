@@ -7,9 +7,11 @@ use App\Models\Tenant;
 use App\Models\Sensor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TenantSecurityTest extends TestCase
 {
+    use RefreshDatabase;
     use DatabaseTransactions;
 
     public function test_tenant_can_only_see_their_own_sensors()
