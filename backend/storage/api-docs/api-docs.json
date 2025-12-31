@@ -1,0 +1,93 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "PgSaaS IoT API",
+        "description": "High-performance IoT Backend with RLS and Partitioning",
+        "contact": {
+            "email": "seu-email@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/stress/start": {
+            "post": {
+                "tags": [
+                    "Stress Test"
+                ],
+                "summary": "Triggers database load injection (Chaos Engineering)",
+                "description": "Inserts thousands of records to stress-test the PostgreSQL partitioning strategy and Row-Level Security (RLS) performance under load.",
+                "operationId": "6565ddab625698b9b62141823a484fef",
+                "parameters": [
+                    {
+                        "name": "X-Tenant-ID",
+                        "in": "header",
+                        "description": "Target Tenant UUID for RLS context isolation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Configuration for the load injection",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "description": "Number of sensor readings to generate per batch",
+                                        "type": "integer",
+                                        "example": 1000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attack launched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "Attack launched!"
+                                        },
+                                        "rows": {
+                                            "type": "integer",
+                                            "example": 1000
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error or Database Timeout"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Stress Test",
+            "description": "Stress Test"
+        }
+    ]
+}

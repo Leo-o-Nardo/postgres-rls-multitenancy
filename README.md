@@ -1,144 +1,124 @@
-# PgSaaS Core  
-**High-Performance Multi-Tenant SaaS Backend with PostgreSQL**
+# PgSaaS Core
+**High-Performance Multi-Tenant SaaS Architecture**
 
 ![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=flat&logo=php)
 ![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=flat&logo=laravel)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat&logo=postgresql)
+![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?style=flat&logo=redis)
+![React Native](https://img.shields.io/badge/React_Native-Expo-61DAFB?style=flat&logo=react)
+![Swagger](https://img.shields.io/badge/Docs-OpenAPI-85EA2D?style=flat&logo=swagger)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=flat&logo=github-actions)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker)
-![Security](https://img.shields.io/badge/Security-Row%20Level%20Security-green)
 
 ---
 
 ## 📖 Overview
 
-**PgSaaS Core** is a technical case study that demonstrates how to design a **secure, scalable, and database-centric multi-tenant SaaS backend**, with a strong focus on PostgreSQL advanced features.
+**PgSaaS Core** is a technical case study that demonstrates how to design a **secure, scalable, and observable multi-tenant SaaS platform**, with a strong focus on **database-centric architecture**.
 
-The project simulates an **IoT data ingestion platform** (e.g., fuel pump or industrial sensor monitoring), handling large volumes of time-series data while enforcing **strict tenant isolation at the database level**.
+The system simulates a high-volume **IoT data ingestion engine** (e.g., industrial or fuel pump sensors), processing large time-series datasets while enforcing **strict tenant isolation directly at the PostgreSQL level**.
 
-Unlike traditional SaaS architectures that rely solely on application-level filters for multi-tenancy, this project adopts a **defense-in-depth approach**, pushing critical security and performance responsibilities down to the database engine.
+Beyond the backend, the project includes a **full-stack ecosystem**, featuring a mobile observability application, distributed caching with Redis, automated CI/CD pipelines, and self-generated API documentation.
 
 ---
 
 ## 🎯 Key Goals
 
-- Demonstrate **database-level multi-tenancy** using PostgreSQL Row-Level Security (RLS)
-- Handle **high-volume time-series data** using native table partitioning
-- Offload heavy processing to the database via **PL/pgSQL**
-- Integrate PostgreSQL cleanly with **Laravel 11**
-- Provide a reproducible, production-like environment using **Docker Compose**
+- **Security:** Enforce multi-tenancy using PostgreSQL Row-Level Security (RLS)
+- **Performance:** Handle large-scale time-series data via native partitioning and indexing
+- **Scalability:** Reduce read pressure using Redis look-aside caching
+- **Observability:** Provide real-time operational visibility through a mobile dashboard
+- **Quality Assurance:** Validate guarantees with automated tests and CI pipelines
 
 ---
 
 ## 🚀 Core Features
 
-### 🔐 Database-Level Multi-Tenancy (RLS)
+### 🔐 1. Database-Level Multi-Tenancy (RLS)
 
 Tenant isolation is enforced using **PostgreSQL Row-Level Security policies**.
 
-Even if the application code:
-- Forgets to apply a `WHERE tenant_id = ?`
-- Attempts to query another tenant explicitly
+Even if the application layer:
+- Forgets to apply a tenant filter
+- Executes an incorrect or overly broad query
 
-👉 The database **blocks the operation**.
+👉 PostgreSQL itself blocks cross-tenant access.
 
-This eliminates an entire class of multi-tenant security bugs.
+**Implementation details:**
+- A Laravel middleware injects `app.current_tenant` into the DB session
+- Policies are evaluated at query execution time
 
----
-
-### ⚡ High-Performance Time-Series Data
-
-Sensor data is stored in **range-partitioned tables**, partitioned by month.
-
-Benefits:
-- Query planner prunes irrelevant partitions
-- Faster range queries on large datasets
-- Simple data retention using `DROP PARTITION`
+**Result:** Strong isolation guarantees independent of application correctness.
 
 ---
 
-### 🧠 Database-Centric Processing (PL/pgSQL)
+### ⚡ 2. High-Performance Time-Series Storage
 
-Batch processing and analytics are handled inside PostgreSQL using stored procedures.
+Sensor data is stored using **range partitioning by month**.
 
-Examples:
-- Hourly aggregation of sensor data
-- Calculation of averages and anomaly detection
-- Writing pre-aggregated results into analytics tables
+**Optimizations:**
+- Partition pruning for bounded time queries
+- Covering indexes (`INCLUDE`) for analytical workloads
+- BRIN indexes for large, append-only datasets
 
-This reduces:
-- Application complexity
-- Network overhead
-- API latency
+**Result:** Predictable query performance even with millions of rows.
 
 ---
 
-### 🧩 Tenant Context Injection (Laravel Middleware)
+### 📱 3. Mobile Observability Application (React Native)
 
-A custom Laravel middleware injects the tenant context into the database session for every request:
+A companion mobile application built with **Expo / React Native** provides operational visibility.
 
-```php
-DB::statement(
-    "SELECT set_config('app.current_tenant', ?, false)",
-    [$tenantId]
-);
-```
+**Capabilities:**
+- Switch tenant context to visually validate RLS enforcement
+- Display ingestion throughput and query latency
+- Trigger controlled load scenarios to observe system behavior
 
-PostgreSQL policies automatically apply this context, requiring **no tenant filtering in controllers or repositories**.
+The mobile app acts as a **read-only control surface**, consuming pre-aggregated backend metrics.
 
 ---
 
-### 🐳 Production-Oriented Infrastructure
+### 🚀 4. Distributed Caching with Redis
 
-The project uses Docker Compose to simulate a real-world environment:
+The backend uses a **look-aside caching strategy** with Redis.
 
-- PostgreSQL 16
-- PHP-FPM (Laravel)
-- Nginx as reverse proxy
-- Persistent volumes for database and PgAdmin
+**Design considerations:**
+- Cache keys are namespaced per tenant
+- Heavy analytical queries are cached independently
+- Cache invalidation is tied to batch processing events
 
-This ensures:
-- Environment reproducibility
-- Clean separation between services
-- Easy local setup
+**Result:** Improved read scalability and isolation between tenants under load.
+
+---
+
+### 🤖 5. CI/CD, Automation, and API Documentation
+
+- **GitHub Actions:** Automatically spins up PostgreSQL and runs security-focused test suites on every push
+- **OpenAPI / Swagger:** API documentation is generated directly from Laravel annotations, providing a live interactive playground
 
 ---
 
 ## 🏗 Architecture Decisions
 
-### 1. Row-Level Security over Application-Level Filtering
+### Database-Enforced Security over Application Trust
 
-Instead of trusting developers to always apply tenant filters, tenant isolation is enforced directly by PostgreSQL:
-
-```sql
-CREATE POLICY tenant_isolation_policy
-ON sensors
-USING (
-  tenant_id::text = current_setting('app.current_tenant', true)
-);
-```
-
-This guarantees isolation even in the presence of application bugs.
+Multi-tenancy is enforced at the storage layer using RLS.  
+The application is treated as **untrusted**, reducing the blast radius of bugs and regressions.
 
 ---
 
-### 2. Native Table Partitioning for Time-Series Data
+### Native Partitioning with Index-Only Queries
 
-Sensor tables are partitioned by month to optimize performance and maintenance.
-
-- Efficient range queries
-- Partition pruning
-- Simple archival and retention strategies
+Time-series scalability is achieved through:
+- Declarative partitioning
+- Covering indexes enabling index-only scans
+- Minimal reliance on application-side aggregation
 
 ---
 
-### 3. Application as Orchestrator, Not Data Owner
+### Controlled Load and Backpressure Awareness
 
-Laravel acts as:
-- An orchestrator
-- A security boundary
-- An API layer
-
-All critical data rules and constraints live in the database.
+The frontend avoids fixed polling intervals and adapts request cadence dynamically, preventing UI degradation during high-latency periods.
 
 ---
 
@@ -147,11 +127,12 @@ All critical data rules and constraints live in the database.
 ### Prerequisites
 - Docker
 - Docker Compose
+- Node.js (for the mobile application)
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/pg-saas-core.git
+git clone https://github.com/Leo-o-Nardo/pg-saas-core.git
 cd pg-saas-core
 ```
 
@@ -179,6 +160,22 @@ docker-compose run --rm app php artisan migrate
 
 # (Optional) Seed sample tenants and sensors
 docker-compose run --rm app php artisan db:seed
+
+# Generate API documentation
+docker-compose run --rm app php artisan l5-swagger:generate
+#API Docs available at: http://localhost:8000/api/documentation
+```
+
+To run the frontend application locally, execute the following commands from the project root:
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start the Expo development server
+npx expo start
 ```
 
 ---
@@ -206,13 +203,14 @@ These tests intentionally attempt to bypass application-level logic to prove tha
 ## 📂 Project Structure
 
 ```text
-├── docker-compose.yml        # Environment orchestration
-├── Dockerfile                # Custom PHP-FPM image
-├── backend/                  # Laravel 11 application
-│   ├── app/Http/Middleware/  # Tenant context injection
-│   ├── database/migrations/  # Schema, RLS policies, partitions
-│   └── tests/Feature/        # Security and isolation tests
-└── docker/                   # Nginx configuration
+├── docker-compose.yml     # Environment orchestration
+├── docker/                # Nginx & PHP configuration
+├── backend/               # Laravel 11 API
+│   ├── app/               # Controllers, middleware, services
+│   ├── database/          # Migrations, RLS policies, partitions
+│   └── tests/             # Security and regression tests
+├── frontend/              # React Native (Expo) application
+└── .github/workflows/     # CI/CD pipelines
 ```
 
 ---
@@ -220,4 +218,4 @@ These tests intentionally attempt to bypass application-level logic to prove tha
 ## 👤 Author
 
 **Leonardo Ferreira**  
-Senior Full Stack Developer 
+Full Stack Developer 
