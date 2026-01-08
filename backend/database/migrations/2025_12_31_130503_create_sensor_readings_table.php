@@ -48,6 +48,11 @@ return new class extends Migration
                 FOR VALUES FROM ('{$startRange}') TO ('{$endRange}')
             ");
         }
+
+        DB::statement("
+            CREATE TABLE sensor_readings_default
+            PARTITION OF sensor_readings DEFAULT;
+        ");
     }
 
     public function down(): void
