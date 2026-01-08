@@ -63,6 +63,9 @@ Sensor data is stored using **range partitioning by month**.
 
 **Result:** Predictable query performance even with millions of rows.
 
+> **Snapshot:** Database metrics showing stable transaction throughput during massive data ingestion.
+![Database Metrics](./assets/db-metrics-load.png)
+
 ---
 
 ### 📱 3. Mobile Observability Application (React Native)
@@ -75,6 +78,12 @@ A companion mobile application built with **Expo / React Native** provides opera
 - Trigger controlled load scenarios to observe system behavior
 
 The mobile app acts as a **read-only control surface**, consuming pre-aggregated backend metrics.
+
+<p align="center">
+  <img src="./assets/mobile-dashboard.png" alt="Mobile App Dashboard" height="600">
+  <br>
+  <em>Real-time latency monitoring and load control via Mobile App</em>
+</p>
 
 ---
 
