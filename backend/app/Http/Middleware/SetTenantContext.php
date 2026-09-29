@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str; 
 use Symfony\Component\HttpFoundation\Response;
 
 class SetTenantContext
@@ -15,6 +16,10 @@ class SetTenantContext
 
         if (!$tenantId) {
             return response()->json(['error' => 'Tenant ID is required for access'], 403);
+        }
+
+        if (!Str::isUuid($tenantId)) {
+            return response()->json(['error' => 'Invalid Tenant ID'], 400);
         }
 
         try {

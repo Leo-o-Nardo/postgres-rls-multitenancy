@@ -34,4 +34,10 @@ class TenantSecurityTest extends TestCase
         $response = $this->getJson('/api/sensors');
         $response->assertStatus(403);
     }
+
+    public function test_request_with_invalid_tenant_id_is_rejected()
+    {
+        $response = $this->withHeaders(['X-Tenant-ID' => 'not-a-uuid'])->getJson('/api/sensors');
+        $response->assertStatus(400);
+    }
 }

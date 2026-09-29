@@ -24,4 +24,6 @@ RUN mkdir -p /home/$user/.composer && \
 
 WORKDIR /var/www
 
+RUN mkdir -p /var/www/vendor && chown -R $user:$user /var/www/vendor
+
 USER $user

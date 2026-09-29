@@ -80,7 +80,8 @@ class StressController extends Controller
             return [
                 'write_speed' => round($writeSpeed),
                 'read_latency_ms' => round($queryTime, 2),
-                'total_rows' => $totalRows
+                'total_rows' => $totalRows,
+                'active_partition' => 'sensor_readings_' . now()->format('Y_m'),
             ];
         });
 

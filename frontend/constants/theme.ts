@@ -1,53 +1,35 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
-export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+export const colors = {
+  background: '#0B0D10',
+  surface: '#14171C',
+  border: '#23272E',
+  text: '#E6E8EB',
+  textMuted: '#8A919C',
+  textFaint: '#5B626D',
+  accent: '#4C8DFF',
+  ok: '#3FB950',
+  warn: '#D29922',
+  critical: '#F85149',
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const fonts = {
+  mono: Platform.select({ ios: 'Menlo', default: 'monospace' }),
+};
+
+// Read latency thresholds (ms) used for status colors.
+export const latencyThresholds = { warn: 50, critical: 200 };
+
+export type LatencyStatus = 'healthy' | 'degraded' | 'critical';
+
+export function latencyStatus(ms: number): LatencyStatus {
+  if (ms >= latencyThresholds.critical) return 'critical';
+  if (ms >= latencyThresholds.warn) return 'degraded';
+  return 'healthy';
+}
+
+export const statusColor: Record<LatencyStatus, string> = {
+  healthy: colors.ok,
+  degraded: colors.warn,
+  critical: colors.critical,
+};

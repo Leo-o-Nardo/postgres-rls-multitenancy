@@ -29,6 +29,7 @@ services:
       REDIS_HOST: redis
     volumes:
       - ./backend:/var/www
+      - vendor:/var/www/vendor
     networks:
       - saas-network
     depends_on:
@@ -75,6 +76,7 @@ services:
 volumes:
   pgdata: 
   pgadmin_data:
+  vendor:
 
 networks:
   saas-network:
